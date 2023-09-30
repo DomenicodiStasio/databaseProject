@@ -1,2 +1,2 @@
-# databaseProject
-This project was carried out during the three-year degree, together with 3 other colleagues, for the "databases" exam.
+# Database Project
+This project was carried out during the three-year degree, together with 3 other colleagues, for the "databases" exam. It consists of a report that explains how the database was designed, starting from the analysis of the requirements up to the formulation of schemas that describe the database. There are also database creation and population files, along with text files that contain queries and triggers.
