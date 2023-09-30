@@ -1,0 +1,31 @@
+9.2.1.	Trigger1: 
+create or replace function CHECKPOSTI() returns trigger as $$
+    DECLARE 
+        num integer;
+    begin
+    SELECT capienzaMassimaPasseggeri into num
+    FROM Aeromobile, Serie, Volo
+    WHERE CodiceAeromobile = Aeromobile AND SerieId= Serie AND Volo.id = NEW.id;
+    if(NEW.numerodiPasseggeri > num) then 
+     UPDATE Volo set numerodipasseggeri = num WHERE Id = NEW.Id;
+ end if;
+RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER POSTI
+after UPDATE ON Volo
+FOR EACH ROW
+EXECUTE PROCEDURE CHECKPOSTI();
+
+9.2.2.	Trigger2: 
+create or replace function LICENZA() returns trigger as $$
+    begin
+        if ((NEW.dataOttenimentoLicenza IS NULL) AND (NEW.Grado = 'Comandante') ) then 
+         raise exception 'Licenza mancante';
+    end if;
+RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER LICENZA
+ before INSERT ON pilota
+FOR EACH ROW EXECUTE PROCEDURE LICENZA();

@@ -1,0 +1,37 @@
+7.1.	Query con operatore di aggregazione e join: 
+SELECT S.DenominazioneIncidente, D.CodiceDiIdentificazione, SP.Segno, COUNT(SP.Id)
+FROM Sinistro AS S, SegnoParticolare AS SP, Detrito AS D
+WHERE S.DenominazioneIncidente = D.Sinistro AND SP.Detrito = D.Id AND S.Fase = 'Volo' AND SP.Segno = 'bruciatura'
+GROUP BY S.DenominazioneIncidente, D.CodiceDiIdentificazione, SP.Segno
+
+7.2.	Query nidificata complessa: 
+SELECT V.NumeroVolo, S.DenominazioneIncidente, V.NumeroDiPasseggeri, S.NumeroDiVittime
+FROM Volo AS V JOIN Sinistro AS S ON S.DenominazioneIncidente = V.Sinistro
+WHERE S.NumeroDiVittime = (
+		SELECT MAX(NumeroDiVittime)
+		FROM Sinistro
+	)
+
+7.3.	Query insiemistica:
+SELECT CodiceFiscale, Nome, Cognome
+FROM Pilota P JOIN Conduzione C ON P.CodiceIdentificativo = C.Pilota JOIN Volo V ON C.Volo = V.Id JOIN Sinistro S ON V.Sinistro = S.DenominazioneIncidente
+WHERE S.Fase = 'Decollo'
+UNION
+SELECT CodiceFiscale, Nome, Cognome
+FROM Pilota P JOIN Conduzione C ON P.CodiceIdentificativo = C.Pilota JOIN Volo V ON C.Volo = V.Id JOIN Sinistro S ON V.Sinistro = S.DenominazioneIncidente
+WHERE S.Fase = 'Atterraggio'
+
+8.1.	Vista: 
+create view NumSinistri as 
+select DenominazioneIncidente, count(Detrito.Sinistro) as numeroDetriti 
+from Sinistro join Detrito on Sinistro.DenominazioneIncidente = detrito.Sinistro 
+where Sinistro.Data>'31/12/2020' and Sinistro.Data<='31/12/2021' 
+group by DenominazioneIncidente
+
+8.1.1.	Query con Vista:
+select DenominazioneIncidente, numeroDetriti
+from NumSinistri 
+where numeroDetriti >= all(
+    select numeroDetriti
+    from NumSinistri 
+)
